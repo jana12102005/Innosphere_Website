@@ -1,0 +1,75 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Registered Participants{% endblock %}
+
+{% block content %}
+<h2>Registered Participants</h2>
+
+<p><strong>Total:</strong> {{ total }}</p>
+
+<form method="get" class="filter-grid">
+
+    <select name="event_id">
+        <option value="">All Events</option>
+        {% for e in events %}
+            <option value="{{ e.id }}">{{ e.title }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="college">
+        <option value="">All Colleges</option>
+        {% for c in colleges %}
+            <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="department">
+        <option value="">All Departments</option>
+        {% for d in departments %}
+            <option value="{{ d }}">{{ d }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="year">
+        <option value="">All Years</option>
+        {% for y in years %}
+            <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+    </select>
+
+    <button class="btn btn-primary">Filter</button>
+
+    <a href="{{ url_for('events.export_participants_csv') }}"
+       class="btn btn-success">
+        Export CSV
+    </a>
+
+</form>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Event</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>College</th>
+            <th>Year</th>
+            <th>Contact</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in registrations %}
+        <tr>
+            <td>{{ r.event.title }}</td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.email }}</td>
+            <td>{{ r.department }}</td>
+            <td>{{ r.college }}</td>
+            <td>{{ r.year }}</td>
+            <td>{{ r.contact }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

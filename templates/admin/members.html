@@ -1,0 +1,190 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Members Management | Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px; margin:0 auto; padding:32px 0;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h2 style="font-family:var(--serif); color:var(--navy); margin-bottom:4px;">Members</h2>
+      <p style="color:var(--slate-light); font-size:14px; margin:0;">{{ members|length }} active members · Click a row to edit</p>
+    </div>
+    <a href="{{ url_for('team.admin_team') }}"
+       style="padding:9px 18px; background:var(--pearl-2); color:var(--navy); border-radius:var(--r-sm); font-size:13.5px; font-weight:600; text-decoration:none; border:1px solid rgba(14,31,68,.1);">
+      ← Team Management
+    </a>
+  </div>
+
+  {% if msg %}
+  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:var(--r-sm); padding:12px 16px; color:#15803d; margin-bottom:20px; font-size:14px;">{{ msg }}</div>
+  {% endif %}
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+
+    <!-- LEFT: MEMBERS TABLE -->
+    <div class="card" style="overflow:hidden; padding:0;">
+      <div style="padding:14px 18px; border-bottom:1px solid rgba(14,31,68,.08); background:var(--pearl);">
+        <input type="text" id="member-search" placeholder="Search by ID or name…"
+               style="width:100%; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px; font-family:var(--sans);">
+      </div>
+      <div style="max-height:640px; overflow-y:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead style="position:sticky; top:0; z-index:1;">
+            <tr style="background:var(--navy); color:white;">
+              <th style="padding:10px 14px; text-align:left; font-weight:600;">ID</th>
+              <th style="padding:10px 14px; text-align:left; font-weight:600;">Name</th>
+              <th style="padding:10px 14px; text-align:left; font-weight:600;">Dept</th>
+              <th style="padding:10px 14px; text-align:left; font-weight:600;">Projects</th>
+            </tr>
+          </thead>
+          <tbody id="members-table-body">
+            {% for m in members %}
+            <tr class="member-row" data-id="{{ m.id }}"
+                style="border-bottom:1px solid rgba(14,31,68,.05); cursor:pointer; transition:background .15s;"
+                onclick="selectMember({{ m.id }})">
+              <td style="padding:9px 14px; font-family:monospace; font-size:11.5px; color:var(--slate-light);">{{ m.member_id }}</td>
+              <td style="padding:9px 14px; font-weight:500; color:var(--navy);">{{ m.name }}</td>
+              <td style="padding:9px 14px; color:var(--slate); font-size:12.5px;">{{ (m.department or '')[:16] }}</td>
+              <td style="padding:9px 14px; color:var(--slate-light); font-size:12px;">{{ m.projects|length }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT: EDIT PANEL -->
+    <div id="edit-panel" style="position:sticky; top:80px;">
+      <div class="card" style="padding:24px;" id="edit-card">
+        <div style="text-align:center; padding:40px 0; color:var(--slate-light);">
+          <div style="font-size:36px; margin-bottom:8px;">👤</div>
+          <p style="font-size:14px;">Select a member from the list to edit their details.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Member data for JS -->
+<script>
+const membersData = {
+  {% for m in members %}
+  {{ m.id }}: {
+    id: {{ m.id }},
+    member_id: "{{ m.member_id }}",
+    name: {{ m.name | tojson }},
+    role: {{ (m.role or '') | tojson }},
+    department: {{ (m.department or '') | tojson }},
+    college: {{ (m.college or '') | tojson }},
+    batch: {{ (m.batch or '') | tojson }},
+    project_ids: [{{ m.projects | map(attribute='id') | join(', ') }}]
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+};
+
+const allProjects = [
+  {% for p in projects %}
+  { id: {{ p.id }}, title: {{ p.title | tojson }}, status: "{{ p.status }}" }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+
+let activeId = null;
+
+function selectMember(id) {
+  activeId = id;
+  // Highlight row
+  document.querySelectorAll('.member-row').forEach(r => {
+    r.style.background = r.dataset.id == id
+      ? 'var(--gold-pale)'
+      : '';
+  });
+  renderEditPanel(membersData[id]);
+}
+
+function renderEditPanel(m) {
+  const projectCheckboxes = allProjects.map(p => `
+    <label style="display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:6px; cursor:pointer; background:${m.project_ids.includes(p.id) ? 'var(--gold-pale)' : 'transparent'}; transition:background .15s;">
+      <input type="checkbox" name="project_ids" value="${p.id}"
+             ${m.project_ids.includes(p.id) ? 'checked' : ''}
+             style="width:15px; height:15px; accent-color:var(--gold);">
+      <span style="font-size:13px; color:var(--navy);">${p.title}</span>
+      <span style="font-size:11px; color:${p.status === 'ongoing' ? '#15803d' : 'var(--slate-light)'}; margin-left:auto;">${p.status}</span>
+    </label>
+  `).join('');
+
+  document.getElementById('edit-card').innerHTML = `
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; color:var(--gold); font-family:var(--serif); font-size:20px; font-weight:700; flex-shrink:0;">${m.name[0]}</div>
+        <div>
+          <div style="font-weight:600; color:var(--navy); font-size:16px;">${m.name}</div>
+          <div style="font-family:monospace; font-size:12px; color:var(--slate-light);">${m.member_id}</div>
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('team.admin_members') }}">
+      <input type="hidden" name="action" value="update_member">
+      <input type="hidden" name="member_id" value="${m.id}">
+
+      <div style="display:grid; gap:12px; margin-bottom:18px;">
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Name</label>
+          <input name="name" value="${escHtml(m.name)}" required
+                 style="width:100%; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:6px; font-size:13.5px; font-family:var(--sans);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Department</label>
+          <input name="department" value="${escHtml(m.department)}"
+                 style="width:100%; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:6px; font-size:13.5px; font-family:var(--sans);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">College</label>
+          <input name="college" value="${escHtml(m.college)}"
+                 style="width:100%; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:6px; font-size:13.5px; font-family:var(--sans);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Batch</label>
+          <input name="batch" value="${escHtml(m.batch)}"
+                 style="width:100%; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:6px; font-size:13.5px; font-family:var(--sans);">
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:12px; font-weight:600; color:var(--slate); display:block; margin-bottom:8px;">Project Assignments</label>
+        <div style="max-height:200px; overflow-y:auto; border:1px solid rgba(14,31,68,.1); border-radius:8px; padding:6px;">
+          ${allProjects.length ? projectCheckboxes : '<p style="padding:12px; color:var(--slate-light); font-size:13px;">No projects exist yet.</p>'}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; padding:11px;">Save Changes</button>
+    </form>
+  `;
+}
+
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Table search filter
+document.getElementById('member-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.member-row').forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(q) ? '' : 'none';
+  });
+});
+
+// Auto-open from URL param ?edit=ID
+const urlParams = new URLSearchParams(window.location.search);
+const editId = parseInt(urlParams.get('edit'));
+if (editId && membersData[editId]) {
+  selectMember(editId);
+  setTimeout(() => {
+    const row = document.querySelector(`.member-row[data-id="${editId}"]`);
+    if (row) row.scrollIntoView({ block: 'center' });
+  }, 100);
+}
+</script>
+{% endblock %}

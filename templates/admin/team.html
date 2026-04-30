@@ -1,0 +1,278 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Team Management | Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:1200px; margin:0 auto; padding:32px 0;">
+
+  <h2 style="font-family:var(--serif); color:var(--navy); margin-bottom:6px;">Team Management</h2>
+  <p style="color:var(--slate-light); font-size:14px; margin-bottom:28px;">Manage office bearers, members, and alumni.</p>
+
+  {% if msg %}
+  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:var(--r-sm); padding:12px 16px; color:#15803d; margin-bottom:20px; font-size:14px;">{{ msg }}</div>
+  {% endif %}
+  {% if err %}
+  <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:var(--r-sm); padding:12px 16px; color:#b91c1c; margin-bottom:20px; font-size:14px;">{{ err }}</div>
+  {% endif %}
+
+  <!-- ================================ -->
+  <!-- ADD OFFICE BEARER FORM          -->
+  <!-- ================================ -->
+  <div class="card" style="padding:24px; margin-bottom:32px;">
+    <h4 style="color:var(--navy); margin-bottom:18px;">Add / Replace Office Bearer</h4>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="action" value="add_office">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Role *</label>
+          <select name="role" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px; background:white; font-family:var(--sans);">
+            <option value="">— Select Role —</option>
+            {% for role in default_roles %}
+            <option value="{{ role }}">{{ role }}</option>
+            {% endfor %}
+            <option value="__custom__">Custom role…</option>
+          </select>
+          <input type="text" id="custom-role-input" name="custom_role" placeholder="Enter custom role" style="display:none; width:100%; margin-top:6px; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Name *</label>
+          <input name="name" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Photo *</label>
+          <input type="file" name="image" accept="image/*" required style="width:100%; padding:7px; border:1px solid rgba(14,31,68,.12); border-radius:var(--r-sm); font-size:13px;">
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px;">
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Department *</label>
+          <input name="department" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">College *</label>
+          <input name="college" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Batch</label>
+          <input name="batch" placeholder="e.g. 2022–2026" style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+      </div>
+      <button class="btn btn-primary">Add Office Bearer</button>
+    </form>
+  </div>
+
+  <!-- ================================ -->
+  <!-- ROLE SLOTS GRID                 -->
+  <!-- ================================ -->
+  <h3 style="font-family:var(--serif); color:var(--navy); margin-bottom:20px;">Office Bearer Slots</h3>
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:18px; margin-bottom:48px;">
+    {% for role, member in role_slots %}
+    <div class="card" style="padding:0; overflow:hidden; border:{{ '1px solid rgba(14,31,68,.1)' if member else '2px dashed rgba(14,31,68,.15)' }};">
+
+      {% if member %}
+      <!-- FILLED SLOT -->
+      <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid rgba(14,31,68,.07);">
+        {% if member.image_file %}
+        <img src="{{ member.image_file }}"
+             style="width:52px; height:52px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid var(--gold-pale);">
+        {% else %}
+        <div style="width:52px; height:52px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold); font-family:var(--serif); font-size:22px; font-weight:700;">{{ member.name[0] }}</div>
+        {% endif %}
+        <div style="min-width:0;">
+          <div style="font-weight:600; color:var(--navy); font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ member.name }}</div>
+          <div style="font-size:12px; color:var(--gold); font-weight:600;">{{ member.role }}</div>
+          <div style="font-size:11.5px; color:var(--slate-light);">{{ member.member_id }}</div>
+        </div>
+      </div>
+
+      <!-- UPDATE FORM (collapsible) -->
+      <details style="padding:0;">
+        <summary style="padding:10px 16px; font-size:12.5px; color:var(--navy-light); cursor:pointer; font-weight:600; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+          Edit details <span>▾</span>
+        </summary>
+        <form method="POST" enctype="multipart/form-data" style="padding:14px 16px; background:var(--pearl);">
+          <input type="hidden" name="action" value="update_office">
+          <input type="hidden" name="member_id" value="{{ member.id }}">
+          <div style="display:grid; gap:10px; margin-bottom:12px;">
+            <input name="name" value="{{ member.name }}" placeholder="Name" style="width:100%; padding:8px 10px; border:1px solid rgba(14,31,68,.15); border-radius:5px; font-size:13px;">
+            <select name="role" style="width:100%; padding:8px 10px; border:1px solid rgba(14,31,68,.15); border-radius:5px; font-size:13px; background:white; font-family:var(--sans);">
+              {% for r in default_roles %}
+              <option value="{{ r }}" {{ 'selected' if r == member.role else '' }}>{{ r }}</option>
+              {% endfor %}
+              <option value="{{ member.role }}" {{ 'selected' if member.role not in default_roles else '' }}>{{ member.role }}</option>
+            </select>
+            <input name="department" value="{{ member.department or '' }}" placeholder="Department" style="width:100%; padding:8px 10px; border:1px solid rgba(14,31,68,.15); border-radius:5px; font-size:13px;">
+            <input name="college" value="{{ member.college or '' }}" placeholder="College" style="width:100%; padding:8px 10px; border:1px solid rgba(14,31,68,.15); border-radius:5px; font-size:13px;">
+            <input name="batch" value="{{ member.batch or '' }}" placeholder="Batch" style="width:100%; padding:8px 10px; border:1px solid rgba(14,31,68,.15); border-radius:5px; font-size:13px;">
+            <input type="file" name="image" accept="image/*" style="width:100%; padding:6px; border:1px solid rgba(14,31,68,.12); border-radius:5px; font-size:12px;">
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary" style="font-size:12.5px; padding:7px 16px;">Update</button>
+          </div>
+        </form>
+      </details>
+
+      <!-- ACTIONS -->
+      <div style="display:flex; gap:8px; padding:10px 16px; border-top:1px solid rgba(14,31,68,.07);">
+        <form method="POST" style="flex:1;">
+          <input type="hidden" name="action" value="make_former">
+          <input type="hidden" name="member_id" value="{{ member.id }}">
+          <button class="btn btn-secondary" style="width:100%; font-size:12px; padding:6px;">Move to Former</button>
+        </form>
+        <form method="POST" onsubmit="return confirm('Delete {{ member.name }}?');">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="member_id" value="{{ member.id }}">
+          <button class="btn btn-danger" style="font-size:12px; padding:6px 12px;">Delete</button>
+        </form>
+      </div>
+
+      {% else %}
+      <!-- EMPTY SLOT -->
+      <div style="padding:20px 16px; text-align:center;">
+        <div style="width:48px; height:48px; border-radius:50%; background:var(--pearl-2); border:2px dashed rgba(14,31,68,.2); margin:0 auto 10px; display:flex; align-items:center; justify-content:center;">
+          <span style="color:rgba(14,31,68,.25); font-size:22px;">+</span>
+        </div>
+        <div style="font-size:13px; font-weight:600; color:var(--slate); margin-bottom:2px;">{{ role }}</div>
+        <div style="font-size:11.5px; color:var(--slate-light);">Vacant</div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ================================ -->
+  <!-- FORMER OFFICE BEARERS           -->
+  <!-- ================================ -->
+  {% if former_office %}
+  <h3 style="font-family:var(--serif); color:var(--slate); margin-bottom:16px;">Former Office Bearers</h3>
+  <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:48px;">
+    {% for m in former_office %}
+    <div class="card" style="padding:14px 18px; display:flex; align-items:center; gap:14px; opacity:0.8;">
+      {% if m.image_file %}
+      <img src="{{ m.image_file }}"
+           style="width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; filter:grayscale(60%);">
+      {% else %}
+      <div style="width:40px; height:40px; border-radius:50%; background:var(--slate); display:flex; align-items:center; justify-content:center; color:white; font-size:16px; font-family:var(--serif);">{{ m.name[0] }}</div>
+      {% endif %}
+      <div style="flex:1;">
+        <strong style="color:var(--slate); font-size:14px;">{{ m.name }}</strong>
+        <span style="color:var(--slate-light); font-size:12.5px; margin-left:8px;">Former {{ m.role }}</span>
+        <div style="font-size:12px; color:var(--slate-light);">{{ m.member_id }} · {{ m.department }}</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <form method="POST">
+          <input type="hidden" name="action" value="restore">
+          <input type="hidden" name="member_id" value="{{ m.id }}">
+          <button class="btn btn-secondary" style="font-size:12px; padding:5px 12px;">Restore</button>
+        </form>
+        <form method="POST" onsubmit="return confirm('Delete permanently?');">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="member_id" value="{{ m.id }}">
+          <button class="btn btn-danger" style="font-size:12px; padding:5px 12px;">Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ================================ -->
+  <!-- ADD MEMBER FORM                 -->
+  <!-- ================================ -->
+  <div class="card" style="padding:24px; margin-bottom:32px;">
+    <h4 style="color:var(--navy); margin-bottom:18px;">Add Member</h4>
+    <form method="POST">
+      <input type="hidden" name="action" value="add_member">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; margin-bottom:16px;">
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Name *</label>
+          <input name="name" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Department *</label>
+          <input name="department" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">College *</label>
+          <input name="college" required style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; color:var(--slate); display:block; margin-bottom:4px;">Batch</label>
+          <input name="batch" placeholder="e.g. 2022–2026" style="width:100%; padding:9px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13.5px;">
+        </div>
+      </div>
+      <button class="btn btn-secondary">Add Member</button>
+    </form>
+  </div>
+
+  <!-- ================================ -->
+  <!-- MEMBERS TABLE                   -->
+  <!-- ================================ -->
+  <h3 style="font-family:var(--serif); color:var(--navy); margin-bottom:16px;">Members ({{ members|length }})</h3>
+  {% if members %}
+  <div class="card" style="overflow:hidden; padding:0;">
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+      <thead>
+        <tr style="background:var(--navy); color:white;">
+          <th style="padding:12px 16px; text-align:left; font-weight:600;">ID</th>
+          <th style="padding:12px 16px; text-align:left; font-weight:600;">Name</th>
+          <th style="padding:12px 16px; text-align:left; font-weight:600;">Department</th>
+          <th style="padding:12px 16px; text-align:left; font-weight:600;">College</th>
+          <th style="padding:12px 16px; text-align:left; font-weight:600;">Batch</th>
+          <th style="padding:12px 16px; text-align:left; font-weight:600;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in members %}
+        <tr style="border-bottom:1px solid rgba(14,31,68,.06); {{ 'background:var(--pearl);' if loop.odd else '' }}">
+          <td style="padding:10px 16px; font-family:monospace; font-size:12px; color:var(--slate-light);">{{ m.member_id }}</td>
+          <td style="padding:10px 16px; font-weight:500; color:var(--navy);">{{ m.name }}</td>
+          <td style="padding:10px 16px; color:var(--slate);">{{ m.department }}</td>
+          <td style="padding:10px 16px; color:var(--slate);">{{ m.college }}</td>
+          <td style="padding:10px 16px; color:var(--slate);">{{ m.batch }}</td>
+          <td style="padding:10px 16px;">
+            <div style="display:flex; gap:6px;">
+              <a href="{{ url_for('team.admin_members') }}?edit={{ m.id }}"
+                 style="padding:5px 12px; background:var(--navy); color:white; border-radius:5px; font-size:12px; font-weight:600; text-decoration:none;">Edit</a>
+              <form method="POST" onsubmit="return confirm('Delete {{ m.name }}?');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="member_id" value="{{ m.id }}">
+                <button class="btn btn-danger" style="font-size:12px; padding:5px 10px;">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center; padding:40px; color:var(--slate-light);">No members yet.</div>
+  {% endif %}
+
+</div>
+
+<script>
+const roleSelect = document.querySelector('select[name="role"]');
+const customInput = document.getElementById('custom-role-input');
+if (roleSelect) {
+  roleSelect.addEventListener('change', function() {
+    if (this.value === '__custom__') {
+      customInput.style.display = 'block';
+      customInput.required = true;
+    } else {
+      customInput.style.display = 'none';
+      customInput.required = false;
+    }
+  });
+}
+
+// On submit: if custom role, copy value to role select
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (roleSelect && roleSelect.value === '__custom__') {
+    const custom = customInput.value.trim();
+    if (!custom) { e.preventDefault(); return; }
+    roleSelect.innerHTML = `<option value="${custom}" selected>${custom}</option>`;
+  }
+});
+</script>
+{% endblock %}

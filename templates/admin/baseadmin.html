@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin | InnoSphere{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="admin-body">
+
+<div class="admin-navbar">
+    <div class="admin-nav-left">
+        <img src="{{ url_for('static', filename='images/innosphere_logo.jpeg') }}" alt="InnoSphere" class="admin-logo">
+        <span class="admin-title">InnoSphere Admin</span>
+    </div>
+    <div class="admin-nav-right">
+        <a href="{{ url_for('auth.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('events.admin_events') }}">Events</a>
+        <a href="{{ url_for('events.admin_participants') }}">Participants</a>
+        <a href="{{ url_for('projects.admin_projects') }}">Projects</a>
+        <a href="{{ url_for('certs.admin_certificates') }}">Certificates</a>
+        <a href="{{ url_for('gallery.admin_gallery') }}">Gallery</a>
+        <a href="{{ url_for('team.admin_team') }}">Team</a>
+        <a href="{{ url_for('team.admin_members') }}">Members</a>
+        <a href="{{ url_for('candidates.admin_candidates') }}">Candidates</a>
+        <a href="{{ url_for('chatbot.chat_page') }}">Inno Chat</a>
+        <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
+    </div>
+</div>
+
+<div class="admin-container">
+    {% block content %}{% endblock %}
+</div>
+
+<div class="admin-footer">
+    © InnoSphere Club · Paavai Innovation Forum · Admin Panel
+</div>
+
+</body>
+</html>

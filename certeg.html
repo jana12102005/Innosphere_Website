@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Participation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Great+Vibes&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', 'Georgia', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0e1f44 0%, #1a3260 60%, #243b70 100%);
+            padding: 24px;
+        }
+
+        /* ── OUTER FRAME ── */
+        .cert-outer {
+            width: 100%;
+            max-width: 1020px;
+            background: #faf8f5;
+            position: relative;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.45);
+        }
+
+        /* Gold outer border */
+        .cert-outer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px solid #b8923a;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Inner inset border */
+        .cert-outer::after {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border: 1px solid rgba(184,146,58,0.35);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* ── CORNER ORNAMENTS ── */
+        .corner {
+            position: absolute;
+            width: 52px;
+            height: 52px;
+            z-index: 20;
+        }
+        .corner svg { width: 100%; height: 100%; }
+        .corner.tl { top: 18px;    left: 18px; }
+        .corner.tr { top: 18px;    right: 18px; transform: scaleX(-1); }
+        .corner.bl { bottom: 18px; left: 18px;  transform: scaleY(-1); }
+        .corner.br { bottom: 18px; right: 18px; transform: scale(-1,-1); }
+
+        /* ── HEADER BAND ── */
+        .cert-header {
+            background: linear-gradient(135deg, #0e1f44 0%, #1a3260 55%, #243b70 100%);
+            padding: 44px 60px 72px;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+        }
+
+        /* Subtle gold diagonal lines texture */
+        .cert-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                -45deg,
+                rgba(184,146,58,0.04) 0px,
+                rgba(184,146,58,0.04) 1px,
+                transparent 1px,
+                transparent 18px
+            );
+        }
+
+        .org-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .org-name {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 14px;
+        }
+
+        .cert-main-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(2.6rem, 6vw, 4rem);
+            color: #f4c430;
+            letter-spacing: 0.18em;
+            font-weight: 700;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+
+        .cert-sub-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: clamp(0.9rem, 2vw, 1.25rem);
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 0.35em;
+            font-weight: 300;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+        }
+
+        /* ── MEDALLION ── */
+        .medallion {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(145deg, #f4c430, #c9a44a, #f4c430);
+            border-radius: 50%;
+            margin: -55px auto 28px;
+            border: 7px solid #faf8f5;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.22), inset 0 1px 3px rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .medallion::before {
+            content: '';
+            position: absolute;
+            width: 84%;
+            height: 84%;
+            border: 2px dashed rgba(14,31,68,0.4);
+            border-radius: 50%;
+        }
+
+        .medallion-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.72rem;
+            color: #0e1f44;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.35;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── BODY ── */
+        .cert-body {
+            padding: 10px 72px 52px;
+            text-align: center;
+        }
+
+        .presented-to {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #718096;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        /* Gold rule above name */
+        .name-rule {
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b8923a, transparent);
+            margin: 0 auto 18px;
+        }
+
+        .recipient-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(2.8rem, 6vw, 4.2rem);
+            color: #0e1f44;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        /* Gold underline */
+        .name-underline {
+            width: 340px;
+            max-width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b8923a 30%, #f4c430 50%, #b8923a 70%, transparent);
+            margin: 0 auto 28px;
+        }
+
+        .cert-paragraph {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.02rem;
+            color: #4a5568;
+            line-height: 1.9;
+            max-width: 740px;
+            margin: 0 auto 36px;
+        }
+
+        .cert-paragraph .hl {
+            color: #0e1f44;
+            font-weight: 600;
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 0 auto 40px;
+            max-width: 500px;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(184,146,58,0.5));
+        }
+        .divider-line.right {
+            background: linear-gradient(90deg, rgba(184,146,58,0.5), transparent);
+        }
+        .divider-diamond {
+            width: 8px;
+            height: 8px;
+            background: #b8923a;
+            transform: rotate(45deg);
+        }
+
+        /* ── SIGNATURES ── */
+        .signatures {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .sig-block {
+            flex: 1;
+            min-width: 180px;
+            max-width: 240px;
+            text-align: center;
+        }
+
+        .sig-img-wrap {
+            height: 64px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .sig-img-wrap img {
+            max-height: 60px;
+            max-width: 160px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Fallback blank signature line when image not loaded */
+        .sig-img-wrap img[src=""],
+        .sig-img-wrap img:not([src]) {
+            display: none;
+        }
+
+        .sig-line {
+            width: 80%;
+            height: 1px;
+            background: #b8923a;
+            margin: 0 auto 10px;
+        }
+
+        .sig-name {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            color: #0e1f44;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .sig-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        /* ── BOTTOM FOOTER STRIP ── */
+        .cert-footer {
+            background: linear-gradient(135deg, #0e1f44, #1a3260);
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .cert-footer-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .cert-footer-gold {
+            color: #b8923a;
+            font-weight: 600;
+        }
+
+        /* ── PRINT ── */
+        @media print {
+            body { background: white; padding: 0; }
+            .cert-outer { box-shadow: none; max-width: 100%; }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 680px) {
+            .cert-body { padding: 10px 28px 40px; }
+            .cert-header { padding: 32px 28px 60px; }
+            .signatures { flex-direction: column; align-items: center; }
+            .sig-block { max-width: 280px; }
+        }
+    </style>
+</head>
+<body>
+<div class="cert-outer">
+
+    <!-- Corner ornaments -->
+    <div class="corner tl">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 50 L2 2 L50 2" stroke="#b8923a" stroke-width="1.5" fill="none"/>
+            <path d="M8 44 L8 8 L44 8" stroke="#b8923a" stroke-width="0.7" fill="none" stroke-dasharray="3 3"/>
+            <circle cx="2" cy="2" r="3" fill="#b8923a"/>
+            <circle cx="26" cy="2" r="1.5" fill="#f4c430"/>
+            <circle cx="2" cy="26" r="1.5" fill="#f4c430"/>
+        </svg>
+    </div>
+    <div class="corner tr">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 50 L2 2 L50 2" stroke="#b8923a" stroke-width="1.5" fill="none"/>
+            <path d="M8 44 L8 8 L44 8" stroke="#b8923a" stroke-width="0.7" fill="none" stroke-dasharray="3 3"/>
+            <circle cx="2" cy="2" r="3" fill="#b8923a"/>
+            <circle cx="26" cy="2" r="1.5" fill="#f4c430"/>
+            <circle cx="2" cy="26" r="1.5" fill="#f4c430"/>
+        </svg>
+    </div>
+    <div class="corner bl">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 50 L2 2 L50 2" stroke="#b8923a" stroke-width="1.5" fill="none"/>
+            <path d="M8 44 L8 8 L44 8" stroke="#b8923a" stroke-width="0.7" fill="none" stroke-dasharray="3 3"/>
+            <circle cx="2" cy="2" r="3" fill="#b8923a"/>
+            <circle cx="26" cy="2" r="1.5" fill="#f4c430"/>
+            <circle cx="2" cy="26" r="1.5" fill="#f4c430"/>
+        </svg>
+    </div>
+    <div class="corner br">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 50 L2 2 L50 2" stroke="#b8923a" stroke-width="1.5" fill="none"/>
+            <path d="M8 44 L8 8 L44 8" stroke="#b8923a" stroke-width="0.7" fill="none" stroke-dasharray="3 3"/>
+            <circle cx="2" cy="2" r="3" fill="#b8923a"/>
+            <circle cx="26" cy="2" r="1.5" fill="#f4c430"/>
+            <circle cx="2" cy="26" r="1.5" fill="#f4c430"/>
+        </svg>
+    </div>
+
+    <!-- Header -->
+    <div class="cert-header">
+        <div class="org-name">Paavai Innovation Forum &nbsp;·&nbsp; Paavai Engineering College</div>
+        <div class="cert-main-title">CERTIFICATE</div>
+        <div class="cert-sub-title">of Participation</div>
+    </div>
+
+    <!-- Medallion -->
+    <div class="medallion">
+        <div class="medallion-text">INNO<br>SPHERE<br><span style="font-size:0.6rem; letter-spacing:0.08em;">2025</span></div>
+    </div>
+
+    <!-- Body -->
+    <div class="cert-body">
+
+        <div class="presented-to">This is to certify that</div>
+        <div class="name-rule"></div>
+
+        <div class="recipient-name">{{ NAME }}</div>
+        <div class="name-underline"></div>
+
+        <div class="cert-paragraph">
+            of <span class="hl">{{ DEPT }}</span> from <span class="hl">{{ COLLEGE }}</span>
+            has successfully participated in a
+            <span class="hl">1-Day Workshop</span> titled
+            <span class="hl">"Hands-On OS Installation and Working"</span>
+            conducted by <span class="hl">InnoSphere Club</span>,
+            Paavai Innovation Forum.
+        </div>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-diamond"></div>
+            <div class="divider-line right"></div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="signatures">
+
+            <div class="sig-block">
+                <div class="sig-img-wrap">
+                    <img src="signature1.png" alt="Signature">
+                </div>
+                <div class="sig-line"></div>
+                <div class="sig-name">Ms. Kamala KrishnaMurthy</div>
+                <div class="sig-title">Head<br>Paavai Innovation Forum</div>
+            </div>
+
+            <div class="sig-block">
+                <div class="sig-img-wrap">
+                    <img src="signature2.png" alt="Signature">
+                </div>
+                <div class="sig-line"></div>
+                <div class="sig-name">Dr. R. R. Krishnamurthy</div>
+                <div class="sig-title">Director<br>Paavai Innovation Forum</div>
+            </div>
+
+            <div class="sig-block">
+                <div class="sig-img-wrap">
+                    <img src="signature3.png" alt="Signature">
+                </div>
+                <div class="sig-line"></div>
+                <div class="sig-name">Dr. M. Premkumar</div>
+                <div class="sig-title">Principal<br>Paavai Engineering College</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer strip -->
+    <div class="cert-footer">
+        <div class="cert-footer-text"><span class="cert-footer-gold">InnoSphere</span> &nbsp;·&nbsp; Paavai Innovation Forum</div>
+        <div class="cert-footer-text">Paavai Engineering College, Namakkal</div>
+    </div>
+
+</div>
+</body>
+</html>

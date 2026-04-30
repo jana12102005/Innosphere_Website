@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Projects | InnoSphere{% endblock %}
+
+{% block content %}
+
+<div style="padding: 48px 0 24px;">
+  <h2 style="font-family: var(--serif); font-size: clamp(26px,4vw,42px); color: var(--navy); margin-bottom:6px;">Projects & Research</h2>
+  <p style="color: var(--slate-light); font-size:15px;">Innovation built by InnoSphere members</p>
+</div>
+
+<!-- ================================ -->
+<!-- ONGOING PROJECTS                 -->
+<!-- ================================ -->
+<div style="margin-bottom: 56px;">
+  <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px;">
+    <h3 style="font-family:var(--serif); color:var(--navy); margin:0;">Ongoing Projects</h3>
+    <span style="background:#ecfdf5; color:#15803d; font-size:12px; font-weight:600; padding:3px 12px; border-radius:20px; border:1px solid #bbf7d0;">ACTIVE</span>
+  </div>
+
+  {% if ongoing %}
+  <div class="projects-grid">
+    {% for p in ongoing %}
+    <a href="/projects/{{ p.id }}" class="project-card">
+      <div class="project-card-img">
+        {% if p.image_file %}
+        <img src="{{ p.image_file }}" alt="{{ p.title }}">
+        {% else %}
+        <div class="project-card-placeholder">
+          <span>{{ p.title[0] }}</span>
+        </div>
+        {% endif %}
+        <div class="project-card-badge ongoing">Ongoing</div>
+      </div>
+      <div class="project-card-body">
+        <h4>{{ p.title }}</h4>
+        <p>{{ (p.description or '')[:100] }}{% if p.description and p.description|length > 100 %}…{% endif %}</p>
+        {% if p.lead %}
+        <div class="project-card-lead">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Lead: {{ p.lead.name }}
+        </div>
+        {% endif %}
+        <span class="project-card-link">View Details →</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center; padding:48px; color:var(--slate-light);">No ongoing projects yet.</div>
+  {% endif %}
+</div>
+
+<!-- ================================ -->
+<!-- COMPLETED PROJECTS               -->
+<!-- ================================ -->
+<div style="margin-bottom: 56px;">
+  <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px;">
+    <h3 style="font-family:var(--serif); color:var(--navy); margin:0;">Completed Projects</h3>
+    <span style="background:#f0f4ff; color:#3358a8; font-size:12px; font-weight:600; padding:3px 12px; border-radius:20px; border:1px solid #c7d4f5;">DONE</span>
+  </div>
+
+  {% if completed %}
+  <div class="projects-grid">
+    {% for p in completed %}
+    <a href="/projects/{{ p.id }}" class="project-card completed-card">
+      <div class="project-card-img">
+        {% if p.image_file %}
+        <img src="{{ p.image_file }}" alt="{{ p.title }}">
+        {% else %}
+        <div class="project-card-placeholder done">
+          <span>{{ p.title[0] }}</span>
+        </div>
+        {% endif %}
+        <div class="project-card-badge completed">Completed</div>
+      </div>
+      <div class="project-card-body">
+        <h4>{{ p.title }}</h4>
+        <p>{{ (p.description or '')[:100] }}{% if p.description and p.description|length > 100 %}…{% endif %}</p>
+        {% if p.lead %}
+        <div class="project-card-lead">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Lead: {{ p.lead.name }}
+        </div>
+        {% endif %}
+        <span class="project-card-link">View Details →</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center; padding:48px; color:var(--slate-light);">No completed projects yet.</div>
+  {% endif %}
+</div>
+
+<style>
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+@media (max-width: 900px) { .projects-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .projects-grid { grid-template-columns: 1fr; } }
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(14,31,68,.08);
+  box-shadow: var(--s1);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+  height: 100%;
+}
+.project-card:hover { transform: translateY(-5px); box-shadow: var(--s3); }
+
+.project-card-img {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: var(--pearl-2);
+  flex-shrink: 0;
+}
+.project-card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s var(--ease);
+}
+.project-card:hover .project-card-img img { transform: scale(1.04); }
+
+.project-card-placeholder {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+}
+.project-card-placeholder.done {
+  background: linear-gradient(135deg, var(--slate) 0%, var(--slate-light) 100%);
+}
+.project-card-placeholder span {
+  font-size: 64px; font-family: var(--serif); color: rgba(255,255,255,.3);
+  font-weight: 700;
+}
+
+.project-card-badge {
+  position: absolute; top: 14px; right: 14px;
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase;
+}
+.project-card-badge.ongoing   { background: #ecfdf5; color: #15803d; }
+.project-card-badge.completed { background: rgba(14,31,68,.75); color: #c9b88a; }
+
+.project-card-body {
+  padding: 20px 22px 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.project-card-body h4 {
+  font-family: var(--serif); font-size: 17px; color: var(--navy);
+  line-height: 1.3; margin: 0;
+}
+.project-card-body p {
+  color: var(--slate-light); font-size: 13.5px; line-height: 1.6; margin: 0; flex: 1;
+}
+.project-card-lead {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12.5px; color: var(--gold); font-weight: 500;
+}
+.project-card-link {
+  font-size: 12.5px; font-weight: 600; color: var(--navy-light);
+  margin-top: 4px;
+}
+.completed-card .project-card-body h4 { color: var(--slate); }
+</style>
+{% endblock %}

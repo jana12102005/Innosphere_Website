@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Download Certificate | InnoSphere{% endblock %}
+
+{% block content %}
+<div style="max-width:620px; margin:0 auto; padding:48px 0;">
+
+  <h2 style="font-family:var(--serif); color:var(--navy); margin-bottom:6px;">Download Your Certificate</h2>
+  <p style="color:var(--slate-light); font-size:14.5px; margin-bottom:36px;">Enter the email you used when registering for the event.</p>
+
+  {% if error %}
+  <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:var(--r-md); padding:14px 18px; color:#b91c1c; margin-bottom:24px; font-size:14px;">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  {% if success %}
+  <!-- SUCCESS STATE -->
+  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:var(--r-lg); padding:28px; margin-bottom:32px; text-align:center;">
+    <div style="font-size:40px; margin-bottom:8px;">🎓</div>
+    <h3 style="color:#15803d; font-family:var(--serif); margin-bottom:4px;">Certificate Ready!</h3>
+    <p style="color:#166534; font-size:14px; margin-bottom:20px;">
+      <strong>{{ success.name }}</strong> · {{ success.event_title }}
+    </p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="{{ url_for('certs.download_certificate', filename=success.filename) }}"
+         target="_blank"
+         style="display:inline-block; background:var(--navy); color:white; padding:11px 24px; border-radius:var(--r-sm); font-size:14px; font-weight:600; text-decoration:none;">
+        Preview Certificate
+      </a>
+      <a href="{{ url_for('certs.download_certificate', filename=success.filename) }}"
+         download
+         style="display:inline-block; background:var(--gold); color:white; padding:11px 24px; border-radius:var(--r-sm); font-size:14px; font-weight:600; text-decoration:none;">
+        Download PDF
+      </a>
+    </div>
+  </div>
+  <p style="text-align:center; font-size:13.5px; color:var(--slate-light);">Need another certificate? Fill the form below.</p>
+  <hr style="margin:24px 0;">
+  {% endif %}
+
+  <!-- FORM -->
+  <form id="cert-form" method="POST">
+    <div style="margin-bottom:20px;">
+      <label style="display:block; font-size:13px; font-weight:600; color:var(--slate); margin-bottom:6px;">Registered Email *</label>
+      <input type="email" name="email" id="email-input" required
+             placeholder="yourname@email.com"
+             style="width:100%; padding:11px 14px; border:1px solid rgba(14,31,68,.18); border-radius:var(--r-sm); font-family:var(--sans); font-size:14.5px; transition:border .2s;">
+    </div>
+
+    <div style="margin-bottom:28px;" id="event-section">
+      <label style="display:block; font-size:13px; font-weight:600; color:var(--slate); margin-bottom:6px;">Select Event *</label>
+
+      <div id="event-loading" style="display:none; color:var(--slate-light); font-size:13.5px; padding:8px 0;">Looking up your registrations…</div>
+
+      <select name="event_title" id="event-select" required
+              style="width:100%; padding:11px 14px; border:1px solid rgba(14,31,68,.18); border-radius:var(--r-sm); font-family:var(--sans); font-size:14.5px; background:white;">
+        <option value="">— Select Event —</option>
+        {% for e in event_titles %}
+        <option value="{{ e }}">{{ e }}</option>
+        {% endfor %}
+      </select>
+      <p style="font-size:12px; color:var(--slate-light); margin-top:5px; margin-bottom:0;">
+        Tip: Enter your email first — the list will filter to only your registered events.
+      </p>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width:100%; padding:13px; font-size:15px;">
+      Generate &amp; Download Certificate
+    </button>
+  </form>
+
+</div>
+
+<script>
+const allEvents = {{ event_titles | tojson }};
+const emailInput  = document.getElementById('email-input');
+const eventSelect = document.getElementById('event-select');
+const loadingEl   = document.getElementById('event-loading');
+let debounceTimer = null;
+
+emailInput.addEventListener('input', function() {
+  clearTimeout(debounceTimer);
+  const email = this.value.trim();
+  if (!email || !email.includes('@')) {
+    resetEventSelect(allEvents);
+    return;
+  }
+  debounceTimer = setTimeout(() => lookupEvents(email), 600);
+});
+
+function lookupEvents(email) {
+  loadingEl.style.display = 'block';
+  fetch('/certificate/lookup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  })
+  .then(r => r.json())
+  .then(data => {
+    loadingEl.style.display = 'none';
+    if (data.events && data.events.length > 0) {
+      resetEventSelect(data.events);
+      if (data.events.length === 1) {
+        eventSelect.value = data.events[0];
+      }
+    } else {
+      resetEventSelect(allEvents);
+    }
+  })
+  .catch(() => {
+    loadingEl.style.display = 'none';
+    resetEventSelect(allEvents);
+  });
+}
+
+function resetEventSelect(events) {
+  eventSelect.innerHTML = '<option value="">— Select Event —</option>';
+  events.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e; opt.textContent = e;
+    eventSelect.appendChild(opt);
+  });
+}
+</script>
+{% endblock %}

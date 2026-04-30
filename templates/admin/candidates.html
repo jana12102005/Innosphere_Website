@@ -1,0 +1,122 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Candidates | Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Registered Candidates</h2>
+
+<div class="card p-4">
+
+    {% if candidates %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>College</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th style="width:260px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% for c in candidates %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.department }}</td>
+                    <td>{{ c.college }}</td>
+                    <td style="max-width:300px;">{{ c.reason }}</td>
+
+                    <!-- STATUS -->
+                    <td>
+                        {% if c.status == "pending" %}
+                            <span class="badge bg-secondary">Pending</span>
+                        {% elif c.status == "invited" %}
+                            <span class="badge bg-warning text-dark">Invited</span>
+                        {% elif c.status == "accepted" %}
+                            <span class="badge bg-success">Accepted</span>
+                        {% elif c.status == "rejected" %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+
+                        <!-- PENDING -->
+                        {% if c.status == "pending" %}
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="invite_id" value="{{ c.id }}">
+                            <input
+                                type="date"
+                                name="interview_date"
+                                class="form-control form-control-sm mb-1"
+                                required
+                            >
+                            <button class="btn btn-sm btn-success w-100 mb-1">
+                                Invite
+                            </button>
+                        </form>
+
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="reject_id" value="{{ c.id }}">
+                            <button class="btn btn-sm btn-danger w-100">
+                                Reject
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <!-- INVITED -->
+                        {% if c.status == "invited" %}
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="accept_id" value="{{ c.id }}">
+                            <button class="btn btn-sm btn-primary w-100 mb-1">
+                                Accept & Add to Team
+                            </button>
+                        </form>
+
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="reject_id" value="{{ c.id }}">
+                            <button class="btn btn-sm btn-danger w-100">
+                                Reject
+                            </button>
+                        </form>
+
+                        {% if c.interview_date %}
+                        <small class="text-muted d-block mt-1">
+                            Interview: {{ c.interview_date }}
+                        </small>
+                        {% endif %}
+                        {% endif %}
+
+                        <!-- ACCEPTED -->
+                        {% if c.status == "accepted" %}
+                            <span class="text-success fw-bold">
+                                Added to Team
+                            </span>
+                        {% endif %}
+
+                        <!-- REJECTED -->
+                        {% if c.status == "rejected" %}
+                            <span class="text-muted">
+                                Finalized
+                            </span>
+                        {% endif %}
+
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted mb-0">No candidates found.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

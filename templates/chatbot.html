@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with Inno</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+<div class="chat-page-container">
+
+    <div class="chat-header">
+        🤖 Chat with Inno
+    </div>
+
+    <div id="inno-chat-messages" class="chat-messages">
+        <div class="inno-msg bot">
+            👋 Hello! I’m <strong>Inno</strong>, the AI Assistant of InnoSphere.<br>
+            How can I help you today?
+        </div>
+    </div>
+
+    <div class="chat-input">
+        <input
+            type="text"
+            id="inno-user-input"
+            placeholder="Ask about events, certificates, team..."
+            onkeydown="if(event.key==='Enter') sendInnoMessage()"
+        >
+        <button onclick="sendInnoMessage()">Send</button>
+    </div>
+
+</div>
+
+</body>
+</html>

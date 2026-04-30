@@ -1,0 +1,11 @@
+flask
+flask-sqlalchemy
+pymysql
+cryptography
+python-dotenv
+cloudinary
+requests
+groq
+reportlab
+beautifulsoup4
+gunicorn

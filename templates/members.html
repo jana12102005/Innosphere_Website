@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Members | InnoSphere{% endblock %}
+
+{% block content %}
+<div style="padding:40px 0 16px;">
+  <h2 style="font-family:var(--serif); color:var(--navy); margin-bottom:6px;">Member Directory</h2>
+  <p style="color:var(--slate-light); font-size:14.5px;">Search by Member ID or name to view a member's profile and projects.</p>
+</div>
+
+<!-- SEARCH BAR -->
+<form method="GET" style="margin-bottom:36px;">
+  <div style="display:flex; gap:12px; max-width:500px;">
+    <input type="text" name="q" value="{{ search }}"
+           placeholder="Enter Member ID (e.g. PIFINSM001) or name…"
+           style="flex:1; padding:12px 16px; border:1.5px solid rgba(14,31,68,.18); border-radius:var(--r-sm); font-family:var(--sans); font-size:14.5px; outline:none; transition:border .2s;"
+           autofocus>
+    <button type="submit" class="btn btn-primary" style="padding:12px 22px; white-space:nowrap;">Search</button>
+    {% if search %}
+    <a href="{{ url_for('team.public_members') }}" class="btn btn-secondary" style="padding:12px 18px; white-space:nowrap;">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+{% if search and not members %}
+<div class="card" style="text-align:center; padding:48px; color:var(--slate-light);">
+  <div style="font-size:36px; margin-bottom:12px;">🔍</div>
+  <p>No members found for <strong>"{{ search }}"</strong>.<br>Try a different ID or name.</p>
+</div>
+
+{% elif members %}
+
+<!-- SINGLE RESULT — show full profile card -->
+{% if members|length == 1 %}
+{% set m = members[0] %}
+<div style="max-width:700px; margin:0 auto;">
+  <div class="card" style="padding:32px; margin-bottom:24px;">
+    <div style="display:flex; align-items:flex-start; gap:24px; flex-wrap:wrap;">
+      <div style="width:90px; height:90px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:3px solid var(--gold-pale);">
+        <span style="font-size:38px; font-family:var(--serif); color:var(--gold); font-weight:700;">{{ m.name[0] }}</span>
+      </div>
+      <div style="flex:1; min-width:0;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+          <h3 style="font-family:var(--serif); color:var(--navy); margin:0; font-size:24px;">{{ m.name }}</h3>
+          <span style="font-family:monospace; font-size:12px; background:var(--pearl-2); border:1px solid rgba(14,31,68,.1); padding:3px 10px; border-radius:20px; color:var(--slate);">{{ m.member_id }}</span>
+        </div>
+        <div style="font-size:14px; color:var(--slate); line-height:1.8;">
+          <div><strong>Department:</strong> {{ m.department or '—' }}</div>
+          <div><strong>College:</strong> {{ m.college or '—' }}</div>
+          <div><strong>Batch:</strong> {{ m.batch or '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  {% set ongoing_projects = m.projects | selectattr('status', 'eq', 'ongoing') | list %}
+  {% set done_projects = m.projects | selectattr('status', 'eq', 'completed') | list %}
+
+  {% if m.led_projects or m.projects %}
+  <div class="card" style="padding:24px;">
+    <h4 style="font-family:var(--serif); color:var(--navy); margin-bottom:20px;">Projects</h4>
+
+    {% if m.led_projects %}
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11.5px; font-weight:700; color:var(--gold); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px;">Leading</div>
+      {% for p in m.led_projects %}
+      <a href="/projects/{{ p.id }}" style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--gold-pale); border:1px solid rgba(184,146,58,.2); border-radius:var(--r-sm); margin-bottom:8px; text-decoration:none;">
+        <span style="font-size:14px; font-weight:600; color:var(--navy); flex:1;">{{ p.title }}</span>
+        <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; {{ 'background:#ecfdf5; color:#15803d;' if p.status == 'ongoing' else 'background:#f0f4ff; color:#3358a8;' }}">{{ p.status }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if ongoing_projects %}
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11.5px; font-weight:700; color:#15803d; letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px;">Ongoing</div>
+      {% for p in ongoing_projects %}
+      <a href="/projects/{{ p.id }}" style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:var(--r-sm); margin-bottom:8px; text-decoration:none;">
+        <span style="font-size:14px; font-weight:500; color:var(--navy);">{{ p.title }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if done_projects %}
+    <div>
+      <div style="font-size:11.5px; font-weight:700; color:var(--slate-light); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px;">Completed</div>
+      {% for p in done_projects %}
+      <a href="/projects/{{ p.id }}" style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--pearl-2); border:1px solid rgba(14,31,68,.08); border-radius:var(--r-sm); margin-bottom:8px; text-decoration:none;">
+        <span style="font-size:14px; color:var(--slate);">{{ p.title }}</span>
+        <span style="font-size:11px; font-weight:600; color:var(--slate-light); margin-left:auto;">✓ Done</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not m.led_projects and not m.projects %}
+    <p style="color:var(--slate-light); font-size:14px;">No projects assigned yet.</p>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card" style="padding:24px; text-align:center; color:var(--slate-light);">No projects assigned yet.</div>
+  {% endif %}
+</div>
+
+{% else %}
+<!-- MULTIPLE RESULTS — show compact list -->
+<p style="color:var(--slate-light); font-size:13.5px; margin-bottom:16px;">{{ members|length }} members found for "{{ search }}"</p>
+<div class="card" style="overflow:hidden; padding:0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+    <thead>
+      <tr style="background:var(--navy); color:white;">
+        <th style="padding:12px 18px; text-align:left; font-weight:600;">Member ID</th>
+        <th style="padding:12px 18px; text-align:left; font-weight:600;">Name</th>
+        <th style="padding:12px 18px; text-align:left; font-weight:600;">Department</th>
+        <th style="padding:12px 18px; text-align:left; font-weight:600;">Projects</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in members %}
+      <tr style="border-bottom:1px solid rgba(14,31,68,.05); {{ 'background:var(--pearl);' if loop.odd else '' }} cursor:pointer;"
+          onclick="window.location='?q={{ m.member_id }}'">
+        <td style="padding:11px 18px; font-family:monospace; font-size:12px; color:var(--slate-light);">{{ m.member_id }}</td>
+        <td style="padding:11px 18px; font-weight:500; color:var(--navy);">{{ m.name }}</td>
+        <td style="padding:11px 18px; color:var(--slate);">{{ m.department }}</td>
+        <td style="padding:11px 18px;">
+          <span style="font-size:12px; color:var(--slate-light);">{{ m.projects|length }} project{{ 's' if m.projects|length != 1 else '' }}</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% else %}
+<!-- NO SEARCH YET — show all members as compact table -->
+<div class="card" style="overflow:hidden; padding:0;">
+  <div style="padding:14px 18px; border-bottom:1px solid rgba(14,31,68,.07); background:var(--pearl); font-size:13px; color:var(--slate-light);">
+    Showing all {{ members|length }} members · Click a row or search by ID for full profile
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+      <thead>
+        <tr style="background:var(--navy); color:white;">
+          <th style="padding:11px 18px; text-align:left; font-weight:600;">Member ID</th>
+          <th style="padding:11px 18px; text-align:left; font-weight:600;">Name</th>
+          <th style="padding:11px 18px; text-align:left; font-weight:600;">Department</th>
+          <th style="padding:11px 18px; text-align:left; font-weight:600;">College</th>
+          <th style="padding:11px 18px; text-align:left; font-weight:600;">Batch</th>
+          <th style="padding:11px 18px; text-align:left; font-weight:600;">Projects</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in members %}
+        <tr style="border-bottom:1px solid rgba(14,31,68,.05); {{ 'background:var(--pearl);' if loop.odd else '' }} cursor:pointer; transition:background .12s;"
+            onclick="window.location='?q={{ m.member_id }}'"
+            onmouseover="this.style.background='var(--gold-pale)'"
+            onmouseout="this.style.background='{{ 'var(--pearl)' if loop.odd else '' }}'">
+          <td style="padding:10px 18px; font-family:monospace; font-size:12px; color:var(--slate-light);">{{ m.member_id }}</td>
+          <td style="padding:10px 18px; font-weight:500; color:var(--navy);">{{ m.name }}</td>
+          <td style="padding:10px 18px; color:var(--slate);">{{ m.department }}</td>
+          <td style="padding:10px 18px; color:var(--slate);">{{ m.college }}</td>
+          <td style="padding:10px 18px; color:var(--slate);">{{ m.batch }}</td>
+          <td style="padding:10px 18px; color:var(--slate-light); font-size:12.5px;">{{ m.projects|length }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

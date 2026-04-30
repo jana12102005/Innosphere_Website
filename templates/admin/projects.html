@@ -1,0 +1,198 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Projects Management | Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px; margin:0 auto; padding:32px 0;">
+
+  <h2 style="font-family:var(--serif); color:var(--navy); margin-bottom:28px;">Projects Management</h2>
+
+  <!-- ================================ -->
+  <!-- ADD NEW PROJECT FORM            -->
+  <!-- ================================ -->
+  <div class="card" style="padding:28px; margin-bottom:36px;">
+    <h4 style="color:var(--navy); margin-bottom:22px;">Add New Project</h4>
+    <form method="POST" enctype="multipart/form-data">
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;">
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--slate); display:block; margin-bottom:5px;">Project Title *</label>
+          <input name="title" required style="width:100%; padding:10px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-family:var(--sans); font-size:14px;">
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--slate); display:block; margin-bottom:5px;">Status</label>
+          <select name="status" style="width:100%; padding:10px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-family:var(--sans); font-size:14px; background:white;">
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:13px; font-weight:600; color:var(--slate); display:block; margin-bottom:5px;">Description</label>
+        <textarea name="description" rows="4" style="width:100%; padding:10px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-family:var(--sans); font-size:14px; resize:vertical;"></textarea>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;">
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--slate); display:block; margin-bottom:5px;">Project Image</label>
+          <input type="file" name="image" accept="image/*" style="width:100%; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13px;">
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--slate); display:block; margin-bottom:5px;">Team Lead</label>
+          <select name="lead_id" style="width:100%; padding:10px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-family:var(--sans); font-size:14px; background:white;">
+            <option value="">— No Lead —</option>
+            {% for m in all_members %}
+            <option value="{{ m.id }}">{{ m.name }} ({{ m.member_id }} · {{ m.role or m.member_type }})</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- DYNAMIC MEMBER SELECTION -->
+      <div>
+        <label style="font-size:13px; font-weight:600; color:var(--slate); display:block; margin-bottom:8px;">Team Members</label>
+        <div id="member-selects">
+          <div class="member-row" style="display:flex; gap:10px; margin-bottom:10px;">
+            <select name="member_ids" style="flex:1; padding:10px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-family:var(--sans); font-size:14px; background:white;">
+              <option value="">— Select Member —</option>
+              {% for m in all_members %}
+              <option value="{{ m.id }}">{{ m.name }} ({{ m.member_id }})</option>
+              {% endfor %}
+            </select>
+            <button type="button" onclick="removeMemberRow(this)" style="padding:8px 14px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:var(--r-sm); font-size:13px; cursor:pointer;">✕</button>
+          </div>
+        </div>
+        <button type="button" id="add-member-btn" style="margin-top:4px; padding:7px 16px; background:var(--navy); color:white; border-radius:var(--r-sm); font-size:13px; font-weight:600;">+ Add Another Member</button>
+      </div>
+
+      <div style="margin-top:24px;">
+        <button class="btn btn-primary">Create Project</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ================================ -->
+  <!-- EXISTING PROJECTS               -->
+  <!-- ================================ -->
+  <h3 style="font-family:var(--serif); color:var(--navy); margin-bottom:20px;">All Projects</h3>
+
+  {% if projects %}
+  <div style="display:flex; flex-direction:column; gap:16px;">
+    {% for p in projects %}
+    <div class="card" style="padding:20px 24px;">
+      <div style="display:flex; align-items:flex-start; gap:18px;">
+
+        <!-- IMAGE THUMB -->
+        {% if p.image_file %}
+        <img src="{{ p.image_file }}"
+             style="width:80px; height:80px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0;">
+        {% else %}
+        <div style="width:80px; height:80px; background:var(--navy); border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <span style="color:rgba(255,255,255,.3); font-family:var(--serif); font-size:32px;">{{ p.title[0] }}</span>
+        </div>
+        {% endif %}
+
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+            <strong style="color:var(--navy); font-size:16px;">{{ p.title }}</strong>
+            {% if p.status == "ongoing" %}
+            <span style="background:#ecfdf5; color:#15803d; font-size:11px; font-weight:700; padding:2px 10px; border-radius:12px; border:1px solid #bbf7d0;">Ongoing</span>
+            {% else %}
+            <span style="background:#f0f4ff; color:#3358a8; font-size:11px; font-weight:700; padding:2px 10px; border-radius:12px; border:1px solid #c7d4f5;">Completed</span>
+            {% endif %}
+          </div>
+
+          <p style="color:var(--slate-light); font-size:13.5px; margin:0 0 8px;">{{ (p.description or "")[:120] }}{% if p.description and p.description|length > 120 %}…{% endif %}</p>
+
+          <div style="font-size:12.5px; color:var(--slate-light); display:flex; gap:16px; flex-wrap:wrap;">
+            {% if p.lead %}
+            <span>Lead: <strong style="color:var(--navy);">{{ p.lead.name }}</strong></span>
+            {% endif %}
+            <span>Members: <strong style="color:var(--navy);">{{ p.members|length }}</strong></span>
+          </div>
+
+          <!-- Member chips -->
+          {% if p.members %}
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+            {% for m in p.members %}
+            <span style="background:var(--pearl-2); border:1px solid rgba(14,31,68,.1); border-radius:20px; padding:2px 10px; font-size:12px; color:var(--slate);">{{ m.name }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0; align-items:flex-end;">
+
+          <!-- Toggle status -->
+          <form method="POST">
+            <input type="hidden" name="toggle_id" value="{{ p.id }}">
+            <button class="btn {% if p.status == 'ongoing' %}btn-secondary{% else %}btn-success{% endif %}" style="font-size:12px; padding:6px 14px; white-space:nowrap;">
+              Mark {% if p.status == 'ongoing' %}Completed{% else %}Ongoing{% endif %}
+            </button>
+          </form>
+
+          <!-- Delete -->
+          <form method="POST">
+            <input type="hidden" name="delete_id" value="{{ p.id }}">
+            <button class="btn btn-danger delete-btn" style="font-size:12px; padding:6px 14px;">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ADD MEMBER TO EXISTING PROJECT -->
+      <details style="margin-top:14px; border-top:1px solid rgba(14,31,68,.07); padding-top:14px;">
+        <summary style="font-size:13px; color:var(--navy-light); cursor:pointer; font-weight:600;">+ Add member to this project</summary>
+        <form method="POST" style="display:flex; gap:10px; margin-top:10px; align-items:flex-end;">
+          <input type="hidden" name="add_member_project_id" value="{{ p.id }}">
+          <select name="add_member_id" style="flex:1; padding:8px 12px; border:1px solid rgba(14,31,68,.15); border-radius:var(--r-sm); font-size:13px; background:white;">
+            <option value="">— Select Member —</option>
+            {% for m in all_members %}
+            <option value="{{ m.id }}">{{ m.name }} ({{ m.member_id }})</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary" style="font-size:13px; padding:8px 16px; white-space:nowrap;">Add</button>
+        </form>
+      </details>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center; padding:48px; color:var(--slate-light);">No projects yet.</div>
+  {% endif %}
+</div>
+
+<script>
+const memberTemplate = `{{ all_members | map(attribute='id') | list }}`;
+const allMembersHTML = document.querySelector('[name="member_ids"]') ? document.querySelector('[name="member_ids"]').outerHTML : '';
+
+document.getElementById('add-member-btn').addEventListener('click', function () {
+  const container = document.getElementById('member-selects');
+  const firstSelect = container.querySelector('select[name="member_ids"]');
+  if (!firstSelect) return;
+  const row = document.createElement('div');
+  row.className = 'member-row';
+  row.style.cssText = 'display:flex; gap:10px; margin-bottom:10px;';
+  const newSelect = firstSelect.cloneNode(true);
+  newSelect.value = '';
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.onclick = function() { removeMemberRow(this); };
+  removeBtn.style.cssText = 'padding:8px 14px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:6px; font-size:13px; cursor:pointer;';
+  removeBtn.textContent = '✕';
+  row.appendChild(newSelect);
+  row.appendChild(removeBtn);
+  container.appendChild(row);
+});
+
+function removeMemberRow(btn) {
+  const container = document.getElementById('member-selects');
+  const rows = container.querySelectorAll('.member-row');
+  if (rows.length > 1) {
+    btn.closest('.member-row').remove();
+  } else {
+    btn.closest('.member-row').querySelector('select').value = '';
+  }
+}
+</script>
+{% endblock %}

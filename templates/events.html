@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Events | InnoSphere{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Events</h2>
+
+{% if events %}
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:20px;">
+
+    {% for e in events %}
+    <div class="card p-3 shadow-sm">
+
+        <h4 class="mb-2">{{ e.title }}</h4>
+
+        {% if e.brochure_file %}
+            {% set url = e.brochure_file %}
+            {% set low = url.lower() %}
+
+            {% if '.jpg' in low or '.jpeg' in low or '.png' in low or '.webp' in low %}
+                <img src="{{ url }}" alt="Event Brochure"
+                     style="width:100%;height:220px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">
+
+            {% elif '.pdf' in low %}
+                <iframe src="{{ url }}" width="100%" height="220"
+                        style="border:1px solid #ddd;border-radius:6px;"></iframe>
+
+            {% else %}
+                <img src="{{ url }}" alt="Event Brochure"
+                     style="width:100%;height:220px;object-fit:cover;border-radius:6px;border:1px solid #ddd;"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'">
+                <a href="{{ url }}" target="_blank" class="btn btn-secondary mt-2"
+                   style="display:none;">View Brochure</a>
+            {% endif %}
+
+        {% else %}
+            <p class="text-muted mt-2">No brochure available</p>
+        {% endif %}
+
+        <a href="{{ url_for('events.event_detail', event_id=e.id) }}"
+           class="btn btn-primary mt-3 w-100">Register</a>
+
+    </div>
+    {% endfor %}
+
+</div>
+{% else %}
+<h4 class="text-center text-muted">Currently, no events are scheduled.</h4>
+{% endif %}
+
+{% endblock %}

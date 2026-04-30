@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Home | InnoSphere{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <h1>InnoSphere Club</h1>
+    <p>Where Ideas Transform into Impact</p>
+</div>
+
+<!-- LEADERSHIP SECTION -->
+<div class="grid">
+
+    <!-- PATRON / PRINCIPAL -->
+    <div class="card text-center">
+        <img src="{{ url_for('static', filename='images/principal.png') }}" alt="Principal">
+
+        <h3>Patron</h3>
+        <p><strong>Dr. M. Premkumar</strong></p>
+        <p class="text-muted">
+            Principal<br>
+            Paavai Engineering College
+        </p>
+    </div>
+
+    <!-- DIRECTOR -->
+    <div class="card text-center">
+        <img src="{{ url_for('static', filename='images/director.jpeg') }}" alt="Director">
+
+        <h3>Director</h3>
+        <p><strong>Prof. Dr. R. R. Krishnamurthy</strong></p>
+        <p class="text-muted">
+            Director, Centre for Research<br>
+            Paavai Educational Institutions
+        </p>
+    </div>
+
+    <!-- CENTRE HEAD -->
+    <div class="card text-center">
+        <img src="{{ url_for('static', filename='images/head.jpeg') }}" alt="Centre Head">
+
+        <h3>Head</h3>
+        <p><strong>Kamala Krishnamurthy</strong></p>
+        <p class="text-muted">
+            Centre Head<br>
+            Paavai Innovation Forum
+        </p>
+    </div>
+
+</div>
+
+<!-- ABOUT SECTION -->
+<div class="card">
+    <h2>About Paavai Innovation Forum</h2>
+    <p>
+        Paavai Innovation Forum is a dedicated platform that promotes innovation,
+        research culture, and entrepreneurship among students and faculty.
+    </p>
+    <p>
+        It bridges academic knowledge with real-world applications through
+        interdisciplinary collaboration and industry engagement.
+    </p>
+</div>
+
+<div class="card">
+    <h2>About InnoSphere</h2>
+    <p>
+        InnoSphere is an interdisciplinary innovation club under Paavai Innovation Forum
+        that nurtures creative thinking, problem solving, and research excellence.
+    </p>
+    <p>
+        The club empowers students to transform ideas into impactful solutions
+        through projects, events, and collaborative learning.
+    </p>
+</div>
+
+{% endblock %}

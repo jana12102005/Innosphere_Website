@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Gallery | InnoSphere{% endblock %}
+
+{% block content %}
+<h2 class="gallery-title">Moments Frozen in Time ❄️</h2>
+
+<div class="snow-gallery">
+    {% for img in images %}
+    <div class="polaroid">
+        <img src="{{ img.image_file }}">
+        {% if img.title %}
+            <p class="caption">{{ img.title }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Snow overlay -->
+<div class="snow"></div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} | InnoSphere{% endblock %}
+
+{% block content %}
+<div style="padding: 40px 0;">
+
+  <!-- BACK LINK -->
+  <a href="/projects" style="font-size:13.5px; color:var(--slate-light); display:inline-flex; align-items:center; gap:5px; margin-bottom:32px; font-weight:500;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Projects
+  </a>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;">
+
+    <!-- LEFT: IMAGE -->
+    <div>
+      {% if project.image_file %}
+      <img
+        src="{{ project.image_file }}"
+        alt="{{ project.title }}"
+        style="width:100%; border-radius:var(--r-lg); box-shadow:var(--s3); display:block;"
+      >
+      {% else %}
+      <div style="width:100%; aspect-ratio:16/10; border-radius:var(--r-lg); background:linear-gradient(135deg,var(--navy),var(--navy-soft)); display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:80px; font-family:var(--serif); color:rgba(255,255,255,.2); font-weight:700;">{{ project.title[0] }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT: DETAILS -->
+    <div>
+
+      <!-- STATUS BADGE -->
+      {% if project.status == "ongoing" %}
+      <span style="background:#ecfdf5; color:#15803d; font-size:11.5px; font-weight:700; padding:4px 14px; border-radius:20px; border:1px solid #bbf7d0; letter-spacing:.04em; text-transform:uppercase;">● Ongoing</span>
+      {% else %}
+      <span style="background:#f0f4ff; color:#3358a8; font-size:11.5px; font-weight:700; padding:4px 14px; border-radius:20px; border:1px solid #c7d4f5; letter-spacing:.04em; text-transform:uppercase;">✓ Completed</span>
+      {% endif %}
+
+      <h2 style="font-family:var(--serif); font-size:clamp(24px,3vw,36px); color:var(--navy); margin:16px 0 18px; line-height:1.2;">{{ project.title }}</h2>
+
+      <p style="color:var(--slate); font-size:15px; line-height:1.8; margin-bottom:32px;">{{ project.description or "No description provided." }}</p>
+
+      <!-- TEAM LEAD -->
+      {% if project.lead %}
+      <div style="background:var(--gold-pale); border:1px solid rgba(184,146,58,.2); border-radius:var(--r-md); padding:16px 20px; margin-bottom:24px;">
+        <div style="font-size:11px; font-weight:700; color:var(--gold); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px;">Project Lead</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          {% if project.lead.image_file %}
+          <img src="{{ project.lead.image_file }}"
+               style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid rgba(184,146,58,.3);">
+          {% else %}
+          <div style="width:42px; height:42px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; color:var(--gold); font-family:var(--serif); font-size:18px; font-weight:700;">{{ project.lead.name[0] }}</div>
+          {% endif %}
+          <div>
+            <div style="font-weight:600; color:var(--navy); font-size:15px;">{{ project.lead.name }}</div>
+            <div style="font-size:12.5px; color:var(--slate-light);">{{ project.lead.role }} · {{ project.lead.member_id }}</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- TEAM MEMBERS -->
+      {% if project.members %}
+      <div>
+        <div style="font-size:11px; font-weight:700; color:var(--slate-light); letter-spacing:.08em; text-transform:uppercase; margin-bottom:14px;">Team Members</div>
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          {% for m in project.members %}
+          <div style="display:flex; align-items:center; gap:8px; background:var(--white); border:1px solid rgba(14,31,68,.08); border-radius:30px; padding:6px 14px 6px 8px; box-shadow:var(--s1);">
+            {% if m.image_file %}
+            <img src="{{ m.image_file }}"
+                 style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
+            {% else %}
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:700;">{{ m.name[0] }}</div>
+            {% endif %}
+            <div>
+              <div style="font-size:13px; font-weight:500; color:var(--navy);">{{ m.name }}</div>
+              <div style="font-size:11px; color:var(--slate-light);">{{ m.member_id }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<style>
+@media (max-width: 700px) {
+  div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
+{% endblock %}
